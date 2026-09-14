@@ -10,7 +10,7 @@ model User {
   avatar String?
   coverImage String?
 
-  isActive boolean @default(true)
+  isActive Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
