@@ -12,7 +12,7 @@ model User {
 
   isActive Boolean @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt TimestamptzString @default(now())
 
   posts Post[]
   likes Like[]
@@ -70,7 +70,7 @@ model Post {
   quotedBy Post[] @relation("QuotedPosts")
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt TimestamptzString @default(now())
 
   likes Like[]
   reposts Repost[]
