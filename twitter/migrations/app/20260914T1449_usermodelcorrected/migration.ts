@@ -1,8 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/461faee48a195daefb5814808f696b912a2e721118aba681840ded6a017d247c/contract';
-import endContract from '../../snapshots/461faee48a195daefb5814808f696b912a2e721118aba681840ded6a017d247c/contract.json' with { type: 'json' };
-import type { Contract as Start } from '../../snapshots/667e7a768f0a8584ec6231e416bf48c63e55345c143724655bd2fd331f76b6e6/contract';
-import startContract from '../../snapshots/667e7a768f0a8584ec6231e416bf48c63e55345c143724655bd2fd331f76b6e6/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/7f1cc777f1e6cfd7cb27b6730e013ebc811b8d4c93cc057dfd510b79ad4e0307/contract';
+import endContract from '../../snapshots/7f1cc777f1e6cfd7cb27b6730e013ebc811b8d4c93cc057dfd510b79ad4e0307/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -13,12 +11,12 @@ import {
   primaryKey,
 } from '@prisma/orm-postgres/migration';
 
-export default class M extends Migration<Start, End> {
-  override readonly startContractJson = startContract;
+export default class M extends Migration<never, End> {
   override readonly endContractJson = endContract;
 
   override get operations() {
     return [
+      this.createSchema({ schema: 'public' }),
       this.createTable({
         schema: 'public',
         table: 'bookmark',
@@ -166,34 +164,36 @@ export default class M extends Migration<Start, End> {
         ],
         constraints: [primaryKey(['id'])],
       }),
-      this.addColumn({
+      this.createTable({
         schema: 'public',
         table: 'user',
-        column: col('bio', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+        columns: [
+          col('avatar', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('bio', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('coverImage', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('createdAt', 'timestamptz', {
+            notNull: true,
+            default: fn('now()'),
+            codecRef: { codecId: 'pg/timestamptz-temporal@1' },
+          }),
+          col('email', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('isActive', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('password', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updatedAt', 'timestamptz', {
+            notNull: true,
+            default: fn('now()'),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('username', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
       }),
-      this.addColumn({
-        schema: 'public',
-        table: 'user',
-        column: col('coverImage', 'text', { codecRef: { codecId: 'pg/text@1' } }),
-      }),
-      this.addColumn({
-        schema: 'public',
-        table: 'user',
-        column: col('isActive', 'bool', {
-          notNull: true,
-          default: lit(true),
-          codecRef: { codecId: 'pg/bool@1' },
-        }),
-      }),
-      this.dropNotNull({ schema: 'public', table: 'user', column: 'email' }),
-      this.dropNotNull({ schema: 'public', table: 'user', column: 'password' }),
-      this.setDefault({
-        schema: 'public',
-        table: 'user',
-        column: 'updatedAt',
-        defaultSql: 'DEFAULT (now())',
-      }),
-      this.dropNotNull({ schema: 'public', table: 'user', column: 'username' }),
       this.addUnique({
         schema: 'public',
         table: 'bookmark',
@@ -223,6 +223,18 @@ export default class M extends Migration<Start, End> {
         table: 'session',
         constraint: 'session_token_key',
         columns: ['token'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'user',
+        constraint: 'user_username_key',
+        columns: ['username'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'user',
+        constraint: 'user_email_key',
+        columns: ['email'],
       }),
       this.createIndex({
         schema: 'public',

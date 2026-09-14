@@ -995,7 +995,7 @@
                 }
               },
               "email": {
-                "nullable": true,
+                "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1023,7 +1023,7 @@
                 }
               },
               "password": {
-                "nullable": true,
+                "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1037,7 +1037,7 @@
                 }
               },
               "username": {
-                "nullable": true,
+                "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -2106,7 +2106,7 @@
                 "email": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": true
+                  "nullable": false
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -2130,7 +2130,7 @@
                 "password": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": true
+                  "nullable": false
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -2144,7 +2144,7 @@
                 "username": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": true
+                  "nullable": false
                 }
               },
               "foreignKeys": [],
@@ -2191,7 +2191,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "461faee48a195daefb5814808f696b912a2e721118aba681840ded6a017d247c"
+    "storageHash": "7f1cc777f1e6cfd7cb27b6730e013ebc811b8d4c93cc057dfd510b79ad4e0307"
   },
   "execution": {
     "executionHash": "0153ca126b388e8119e9f4db149d0c1cdd8007ccb0c47cef1db16e535a1a5372",
