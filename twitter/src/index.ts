@@ -1,5 +1,6 @@
 import express from "express";
 import user from "./routes/userRoutes.ts";
+import { errorMiddleware } from "./middleware/error.ts";
 
 
 const app = express();
@@ -9,6 +10,7 @@ app.use(express.json());
 
 
 app.use("/users", user);
+app.use(errorMiddleware);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

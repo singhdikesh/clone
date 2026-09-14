@@ -2,11 +2,177 @@
 
 model User {
   id String @id @default(uuid())
-  username String @unique
+  username String? @unique
+  email String? @unique
+  password String?
   name String
-  email String @unique
-  password String
+  bio String?
   avatar String?
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  coverImage String?
+
+  isActive boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts Post[]
+  likes Like[]
+  reposts Repost[]
+  bookmarks Bookmark[]
+  sessions Session[]
+
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
+
+  notificationsReceived Notification[] @relation("NotificationReceiver")
+  notificationsSent Notification[] @relation("NotificationActor")
+}
+
+model Session {
+  id String @id @default(uuid())
+  userId String
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Follow {
+  id String @id @default(uuid())
+  followerId String
+  followingId String
+  createdAt DateTime @default(now())
+
+  follower User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Post {
+  id String @id @default(uuid())
+  content String
+  authorId String
+  parentId  String?
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent Post? @relation("PostReplies", fields: [parentId], references: [id], onDelete: Cascade)
+
+  replies   Post[] @relation("PostReplies")
+
+  quotedPostId String?
+  quotedPost Post? @relation("QuotedPosts", fields: [quotedPostId], references: [id], onDelete: SetNull)
+  quotedBy Post[] @relation("QuotedPosts")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes Like[]
+  reposts Repost[]
+  bookmarks Bookmark[]
+  media Media[]
+  notifications Notification[]
+
+  @@index([authorId])
+  @@index([parentId])
+  @@index([quotedPostId])
+  @@index([createdAt])
+}
+
+model Like {
+  id String @id @default(uuid())
+  userId String
+  postId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Repost {
+  id String @id @default(uuid())
+  userId String
+  postId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Bookmark {
+  id String @id @default(uuid())
+  userId String
+  postId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Media {
+  id String @id @default(uuid())
+  url String
+  type MediaType
+
+  width Int?
+  height Int?
+  altText String?
+  postId String
+
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Notification {
+  id String @id @default(uuid())
+  userId String
+  actorId String?
+  postId String?
+  type NotificationType
+  readAt DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation("NotificationReceiver", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([actorId])
+  @@index([postId])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  LIKE
+  REPOST
+  FOLLOW
+  REPLY
 }
