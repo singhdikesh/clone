@@ -13,5 +13,3 @@ export const getAllPosts = async (req: Request<{id: string}>, res: Response) => 
         data: posts
     });
 }
-
-export const updatePostById = 

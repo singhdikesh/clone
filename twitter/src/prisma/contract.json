@@ -8,6 +8,10 @@
       "model": "Bookmark",
       "namespace": "public"
     },
+    "emailVerificationToken": {
+      "model": "EmailVerificationToken",
+      "namespace": "public"
+    },
     "follow": {
       "model": "Follow",
       "namespace": "public"
@@ -161,6 +165,83 @@
               },
               "namespaceId": "public",
               "table": "bookmark"
+            }
+          },
+          "EmailVerificationToken": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "tokenHash": {
+                  "column": "tokenHash"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "emailVerificationToken"
             }
           },
           "Follow": {
@@ -995,9 +1076,16 @@
                 }
               },
               "email": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "emailVerified": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
                   "kind": "scalar"
                 }
               },
@@ -1023,7 +1111,7 @@
                 }
               },
               "password": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1037,7 +1125,7 @@
                 }
               },
               "username": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -1057,6 +1145,21 @@
                 },
                 "to": {
                   "model": "Bookmark",
+                  "namespace": "public"
+                }
+              },
+              "emailVerificationTokens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "EmailVerificationToken",
                   "namespace": "public"
                 }
               },
@@ -1198,6 +1301,9 @@
                 "email": {
                   "column": "email"
                 },
+                "emailVerified": {
+                  "column": "emailVerified"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -1321,6 +1427,88 @@
                   "columns": [
                     "userId",
                     "postId"
+                  ]
+                }
+              ]
+            },
+            "emailVerificationToken": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "tokenHash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "emailVerificationToken"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "expiresAt"
+                  ],
+                  "name": "emailVerificationToken_expiresAt_idx_6b6b8c10",
+                  "prefix": "emailVerificationToken_expiresAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "emailVerificationToken_userId_idx_a489d58a",
+                  "prefix": "emailVerificationToken_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "tokenHash"
                   ]
                 }
               ]
@@ -2106,6 +2294,15 @@
                 "email": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": true
+                },
+                "emailVerified": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
                   "nullable": false
                 },
                 "id": {
@@ -2130,7 +2327,7 @@
                 "password": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false
+                  "nullable": true
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -2144,7 +2341,7 @@
                 "username": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -2191,10 +2388,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "7f1cc777f1e6cfd7cb27b6730e013ebc811b8d4c93cc057dfd510b79ad4e0307"
+    "storageHash": "f1079a1760efda41a9547ff2a8840cf3e71de6234d5b87732417a6ae37996619"
   },
   "execution": {
-    "executionHash": "0153ca126b388e8119e9f4db149d0c1cdd8007ccb0c47cef1db16e535a1a5372",
+    "executionHash": "8ea36a4d970fd136801a70fd6731a1b582160b320011433371b82e9c82ab9494",
     "mutations": {
       "defaults": [
         {
@@ -2206,6 +2403,17 @@
             "column": "id",
             "namespace": "public",
             "table": "bookmark"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "emailVerificationToken"
           }
         },
         {
